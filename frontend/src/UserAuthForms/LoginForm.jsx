@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../Context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 function LoginForm() {
   const { login } = useAuth();
@@ -8,11 +9,13 @@ function LoginForm() {
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     // Mock login
     login({ email, phone });
+    navigate("/dashboard");
   };
 
   return (
