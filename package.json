@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm install && cd frontend && npm install && npm run build && cd..",
     "heroku-postbuild": "npm run build",
-    "dev": "concurrently \"cd frontend && npm start\" \"nodemon server.js\"",
+    "dev": "concurrently \"nodemon server.js\" \"cd frontend && npm start\"",
     "start": "node server.js"
   },
   "keywords": [],
@@ -21,6 +21,6 @@
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
-    "nodemo": "^1.0.0"
+    "nodemon": "^3.1.10"
   }
 }
