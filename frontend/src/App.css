@@ -1,3 +1,11 @@
+/* Ensure your build process uses PostCSS with Tailwind CSS plugin for these directives to work */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
 .App {
   text-align: center;
 }
