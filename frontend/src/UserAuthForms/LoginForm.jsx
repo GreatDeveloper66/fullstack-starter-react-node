@@ -18,13 +18,12 @@ function LoginForm() {
   const [useCode, setUseCode] = useState(false);
   const navigate = useNavigate();
 
- const inputClasses =
-  "w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 " +
-  "focus:ring-2 focus:ring-blue-400 focus:border-blue-400 " +
-  "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 " +
-  "placeholder-gray-400 dark:placeholder-gray-500 " +
-  "transition duration-200 ease-in-out";
-
+  const inputClasses =
+    "w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 " +
+    "focus:ring-2 focus:ring-blue-400 focus:border-blue-400 " +
+    "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 " +
+    "placeholder-gray-400 dark:placeholder-gray-500 " +
+    "transition duration-200 ease-in-out";
 
   useEffect(() => {
     if (darkMode) {
@@ -93,81 +92,80 @@ function LoginForm() {
           </div>
         )}
 
-
-
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
-          {isRegister && (
-            <>
-              <input
-                type="text"
-                placeholder="First Name"
-                className={inputClasses}
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Last Name"
-                className={inputClasses}
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-              />
-            </>
-          )}
+          <div className="space-y-3">
+            {isRegister && (
+              <>
+                <input
+                  type="text"
+                  placeholder="First Name"
+                  className={inputClasses}
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                />
+                <input
+                  type="text"
+                  placeholder="Last Name"
+                  className={inputClasses}
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                />
+              </>
+            )}
 
-          <input
-            type="email"
-            placeholder="Email"
-            className={inputClasses}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-
-          {useCode ? (
-            <>
-              <input
-                type="text"
-                placeholder="Verification Code"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                className={inputClasses}
-              />
-              <button
-                type="button"
-                onClick={handleSendCode}
-                className="text-sm text-blue-500 hover:underline self-start"
-              >
-                Send Code
-              </button>
-            </>
-          ) : (
             <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              type="email"
+              placeholder="Email"
               className={inputClasses}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
-          )}
 
-          {isRegister && (
+            {useCode ? (
+              <>
+                <input
+                  type="text"
+                  placeholder="Verification Code"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  className={inputClasses}
+                />
+                <button
+                  type="button"
+                  onClick={handleSendCode}
+                  className="text-sm text-blue-500 hover:underline self-start"
+                >
+                  Send Code
+                </button>
+              </>
+            ) : (
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={inputClasses}
+              />
+            )}
+
+            {isRegister && (
+              <input
+                type="password"
+                placeholder="Confirm Password"
+                className={inputClasses}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            )}
+
             <input
-              type="password"
-              placeholder="Confirm Password"
+              type="tel"
+              placeholder="Phone Number"
               className={inputClasses}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
             />
-          )}
-
-          <input
-            type="tel"
-            placeholder="Phone Number"
-            className={inputClasses}
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-          />
-
+          </div>
           <button
             type="submit"
             className="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white font-medium rounded-lg px-4 py-2 shadow-md hover:shadow-lg transition duration-200 ease-in-out w-full"
