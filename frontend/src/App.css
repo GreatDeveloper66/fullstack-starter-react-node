@@ -10,37 +10,39 @@
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Normalize autofill and browser input colors */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px white inset !important;
+  -webkit-text-fill-color: #000 !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover, 
+.dark input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #1f2937 inset !important; /* gray-800 */
+  -webkit-text-fill-color: #f9fafb !important; /* gray-50 */
+}
+
+
+@layer components {
+  .input {
+    @apply border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 
+           focus:ring-2 focus:ring-blue-400 focus:border-blue-400 
+           dark:bg-gray-800 dark:text-gray-100 transition duration-200 ease-in-out;
+  }
+
+  .btn-primary {
+    @apply bg-blue-500 hover:bg-blue-600 active:bg-blue-700 
+           text-white font-medium rounded-lg px-4 py-2 shadow-md hover:shadow-lg 
+           transition duration-200 ease-in-out w-full;
+  }
+
+  .btn-link {
+    @apply text-blue-500 hover:text-blue-600 dark:text-blue-400 
+           underline transition;
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
