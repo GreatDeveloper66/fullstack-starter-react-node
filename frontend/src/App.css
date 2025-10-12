@@ -4,45 +4,66 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
 .App {
   text-align: center;
 }
 
-/* Normalize autofill and browser input colors */
+/* --- Improved Autofill Styling --- */
 input:-webkit-autofill,
-input:-webkit-autofill:hover, 
+input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0px 1000px white inset !important;
-  -webkit-text-fill-color: #000 !important;
-  transition: background-color 5000s ease-in-out 0s;
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #1f2937 !important;
+  /* gray-800 text */
+  border-color: #60a5fa !important;
+  /* blue-400 */
+  transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out;
 }
 
+/* Dark mode autofill */
 .dark input:-webkit-autofill,
-.dark input:-webkit-autofill:hover, 
+.dark input:-webkit-autofill:hover,
 .dark input:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0px 1000px #1f2937 inset !important; /* gray-800 */
-  -webkit-text-fill-color: #f9fafb !important; /* gray-50 */
+  -webkit-box-shadow: 0 0 0px 1000px #1f2937 inset !important;
+  /* gray-800 */
+  -webkit-text-fill-color: #f9fafb !important;
+  /* gray-50 text */
+  border-color: #60a5fa !important;
+  /* blue-400 */
+  transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out;
 }
+
 
 
 @layer components {
   .input {
-    @apply border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 
-           focus:ring-2 focus:ring-blue-400 focus:border-blue-400 
-           dark:bg-gray-800 dark:text-gray-100 transition duration-200 ease-in-out;
+    @apply border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 dark:bg-gray-800 dark:text-gray-100 transition duration-200 ease-in-out;
   }
 
   .btn-primary {
-    @apply bg-blue-500 hover:bg-blue-600 active:bg-blue-700 
-           text-white font-medium rounded-lg px-4 py-2 shadow-md hover:shadow-lg 
-           transition duration-200 ease-in-out w-full;
+    @apply bg-blue-500 text-white font-medium rounded-lg px-4 py-2 w-full transition-all duration-200 ease-in-out shadow-md;
+
+    /* Base shadow and hover lift */
+    @apply hover:bg-blue-600 hover:-translate-y-0.5 hover:shadow-lg;
+
+    /* Click (active) feedback */
+    @apply active:bg-blue-700 active:translate-y-0 active:shadow-inner;
+
+
   }
+
+  .btn-primary:focus {
+    @apply ring-2 ring-blue-400 ring-offset-2 ring-offset-white dark:ring-offset-gray-900;
+  }
+
+
 
   .btn-link {
-    @apply text-blue-500 hover:text-blue-600 dark:text-blue-400 
-           underline transition;
+    @apply text-blue-500 hover:text-blue-600 dark:text-blue-400 underline transition;
   }
-}
 
+  input {
+    @apply transition-all duration-200 ease-in-out;
+  }
+
+}
