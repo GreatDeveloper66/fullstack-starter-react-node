@@ -53,10 +53,7 @@ function LoginForm() {
     <div className="container">
       <div className="contrasted-container">
         {/* Dark mode toggle */}
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className="btn-toggle"
-        >
+        <button onClick={() => setDarkMode(!darkMode)} className="btn-toggle">
           {darkMode ? "☀️ Light" : "🌙 Dark"}
         </button>
 
@@ -69,25 +66,10 @@ function LoginForm() {
           <div className="flex justify-center space-x-4 mb-4">
             <button
               type="button"
-              className={`px-3 py-2 rounded-lg border transition ${
-                !useCode
-                  ? "bg-blue-500 text-white border-blue-500"
-                  : "bg-gray-100 dark:bg-gray-800 dark:text-gray-300"
-              }`}
-              onClick={() => setUseCode(false)}
+              onClick={() => setUseCode(!useCode)}
+              className="btn-secondary"
             >
-              Password Login
-            </button>
-            <button
-              type="button"
-              className={`px-3 py-2 rounded-lg border transition ${
-                useCode
-                  ? "bg-blue-500 text-white border-blue-500"
-                  : "bg-gray-100 dark:bg-gray-800 dark:text-gray-300"
-              }`}
-              onClick={() => setUseCode(true)}
-            >
-              Code Login
+              {useCode ? "Use Password Instead" : "Use One-Time Code"}
             </button>
           </div>
         )}
@@ -166,10 +148,7 @@ function LoginForm() {
               onChange={(e) => setPhone(e.target.value)}
             />
           </div>
-          <button
-            type="submit"
-            className="btn-primary"
-          >
+          <button type="submit" className="btn-primary">
             {isRegister ? "Register" : "Login"}
           </button>
         </form>
