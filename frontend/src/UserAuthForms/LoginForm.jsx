@@ -50,17 +50,17 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
-      <div className="relative shadow-2xl rounded-2xl bg-white dark:bg-gray-900 p-8 w-full max-w-md transition-colors duration-300">
+    <div className="container">
+      <div className="contrasted-container">
         {/* Dark mode toggle */}
         <button
           onClick={() => setDarkMode(!darkMode)}
-          className="absolute top-3 right-3 text-sm px-3 py-1 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+          className="btn-toggle"
         >
           {darkMode ? "☀️ Light" : "🌙 Dark"}
         </button>
 
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6 text-center">
+        <h2 className="heading-2xl">
           {isRegister ? "Create an Account" : "Welcome Back"}
         </h2>
 
@@ -168,7 +168,7 @@ function LoginForm() {
           </div>
           <button
             type="submit"
-            className="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white font-medium rounded-lg px-4 py-2 shadow-md hover:shadow-lg transition duration-200 ease-in-out w-full"
+            className="btn-primary"
           >
             {isRegister ? "Register" : "Login"}
           </button>
