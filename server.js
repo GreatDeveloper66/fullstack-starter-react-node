@@ -1,16 +1,26 @@
 import express from "express";
+import dotenv from "dotenv";
 import path from "path";
+import cors from "cors";
+import connectDB from "./config/db.js";
+import authRoutes from "./routes/authRoutes.js";
 import { fileURLToPath } from "url";
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;a
 
 // Needed to resolve __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+dotenv.config();
+connectDB();
+
+app.use(cors());
 // Middleware for JSON
 app.use(express.json());
+
+app.use("/api/auth/", authRoutes);
 
 // post to create a new user endpoint
 app.post("/api/auth/register", (req, res) => {
