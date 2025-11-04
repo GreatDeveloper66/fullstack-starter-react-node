@@ -63,3 +63,105 @@ export const loginUser = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const logoutUser = (req, res) => {
+  // For JWT, logout is handled on the client side by deleting the token.
+  res.json({ message: "Logout successful" });
+}
+
+export const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  } 
+};
+
+export const updateUserProfile = async (req, res) => {  
+  try {
+    const { firstName, lastName, phone } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    user.firstName = firstName || user.firstName;
+    user.lastName = lastName || user.lastName;
+    user.phone = phone || user.phone;
+    await user.save();
+    res.json({ message: "Profile updated", user });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  } 
+};
+
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+    // Generate reset token (in a real app, send this via email)
+    const resetToken = jwt.sign(
+      { id: user._id }, 
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+    // Here you would send the resetToken via email to the user
+    res.json({ message: "Password reset token generated", resetToken });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }   
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+    res.json({ message: "Password reset successful" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.query;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    user.isVerified = true;
+    await user.save();
+    res.json({ message: "Email verified successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  } 
+};
+
+export const resendVerificationEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+    if (user.isVerified)
+      return res.status(400).json({ message: "Email already verified" });
+    // Generate verification token (in a real app, send this via email)
+    const verifyToken = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+    // Here you would send the verifyToken via email to the user
+    res.json({ message: "Verification email resent", verifyToken });
+  }
+  catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const googleOAuth = (req, res) => {
+  // Placeholder for Google OAuth logic
+  res.json({ message: "Google OAuth not implemented" });
+};
