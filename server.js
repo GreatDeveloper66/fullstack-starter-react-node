@@ -7,7 +7,7 @@ import authRoutes from "./routes/authRoutes.js";
 import { fileURLToPath } from "url";
 
 const app = express();
-const PORT = process.env.PORT || 5000;a
+const PORT = process.env.PORT || 5000;
 
 // Needed to resolve __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);
