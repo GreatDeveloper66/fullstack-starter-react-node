@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../Context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { Fields } from "./FormFields.jsx";
 
 function LoginForm() {
   const { login } = useAuth();
@@ -18,35 +19,45 @@ function LoginForm() {
   const [useCode, setUseCode] = useState(false);
   const navigate = useNavigate();
 
-  const inputClasses =
-    "w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 " +
-    "focus:ring-2 focus:ring-blue-400 focus:border-blue-400 " +
-    "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 " +
-    "placeholder-gray-400 dark:placeholder-gray-500 " +
-    "transition duration-200 ease-in-out";
-
+  // --- Effects ---
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    document.documentElement.classList.toggle("dark", darkMode);
   }, [darkMode]);
 
+  // --- Handlers ---
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (useCode) {
-      alert(`Logging in with code: ${code}`);
-      login({ email, phone, code });
-    } else {
-      alert(`Logging in with email: ${email}`);
-      login({ email, password });
-    }
+    const payload = useCode ? { email, phone, code } : { email, password };
+
+    login(payload);
     navigate("/dashboard");
   };
-
   const handleSendCode = () => {
     alert(`Verification code sent to ${email || phone}`);
+  };
+
+  // --- State groups ---
+  const state = {
+    isRegister,
+    useCode,
+    forgotPassword,
+    email,
+    password,
+    confirmPassword,
+    phone,
+    code,
+    firstName,
+    lastName,
+  };
+  const handlers = {
+    setEmail,
+    setPassword,
+    setConfirmPassword,
+    setPhone,
+    setCode,
+    setFirstName,
+    setLastName,
+    handleSendCode,
   };
 
   return (
@@ -79,113 +90,20 @@ function LoginForm() {
         )}
 
         {/* Form */}
+        {/* --- Form --- */}
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+          {/* The dynamic fields generator */}
           <div className="space-y-3 sm:space-y-4">
-            {isRegister && (
-              <>
-                <input
-                  type="text"
-                  placeholder="First Name"
-                  className={inputClasses}
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                />
-                <input
-                  type="text"
-                  placeholder="Last Name"
-                  className={inputClasses}
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                />
-              </>
-            )}
-            {(useCode && !isRegister) ? null:   (
-              <input
-                type="email"
-                placeholder="Email"
-                className={inputClasses}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            )}
-
-            {isRegister || !forgotPassword ? null : (
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                Enter your email or phone number to receive a password reset
-                code.
-              </p>
-            )}
-            {isRegister && (
-              <input
-                type="password"
-                placeholder="Password"
-                className={inputClasses}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                style={{ display: forgotPassword ? "none" : "block" }}
-              />
-            )}
-
-            {!isRegister && useCode ? (
-              <input
-                type="tel"
-                placeholder="Phone Number"
-                className={inputClasses}
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-            ) : null}
-
-            {!isRegister &&
-              (useCode ? (
-                <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 space-y-2 sm:space-y-0">
-                  <input
-                    type="text"
-                    placeholder="Verification Code"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    className={`${inputClasses} flex-1`}
-                  />
-                  <button
-                    type="button"
-                    onClick={handleSendCode}
-                    className="btn-outline w-full sm:w-auto text-sm sm:text-base"
-                  >
-                    Send Code
-                  </button>
-                </div>
-              ) : (
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className={inputClasses}
-                />
-              ))}
-
-            {isRegister && (
-              <input
-                type="password"
-                placeholder="Confirm Password"
-                className={inputClasses}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            )}
-            {isRegister && (
-              <input
-                type="tel"
-                placeholder="Phone Number"
-                className={inputClasses}
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-            )}
+            {Fields(state, handlers)}
           </div>
 
+          {/* Submit button */}
           <button type="submit" className="btn-primary w-full">
-            {isRegister ? "Register" : "Login"}
+            {isRegister
+              ? "Register"
+              : forgotPassword
+              ? "Send Reset Code"
+              : "Login"}
           </button>
         </form>
 
@@ -227,3 +145,10 @@ function LoginForm() {
 }
 
 export default LoginForm;
+
+// const inputClasses =
+//   "w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 " +
+//   "focus:ring-2 focus:ring-blue-400 focus:border-blue-400 " +
+//   "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 " +
+//   "placeholder-gray-400 dark:placeholder-gray-500 " +
+//   "transition duration-200 ease-in-out";
