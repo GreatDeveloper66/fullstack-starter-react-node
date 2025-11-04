@@ -99,41 +99,70 @@ function LoginForm() {
                 />
               </>
             )}
+            {(useCode && !isRegister) ? null:   (
+              <input
+                type="email"
+                placeholder="Email"
+                className={inputClasses}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            )}
 
-            <input
-              type="email"
-              placeholder="Email"
-              className={inputClasses}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-
-            {!isRegister && (useCode ? (
-              <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 space-y-2 sm:space-y-0">
-                <input
-                  type="text"
-                  placeholder="Verification Code"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  className={`${inputClasses} flex-1`}
-                />
-                <button
-                  type="button"
-                  onClick={handleSendCode}
-                  className="btn-outline w-full sm:w-auto text-sm sm:text-base"
-                >
-                  Send Code
-                </button>
-              </div>
-            ) : (
+            {isRegister || !forgotPassword ? null : (
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                Enter your email or phone number to receive a password reset
+                code.
+              </p>
+            )}
+            {isRegister && (
               <input
                 type="password"
                 placeholder="Password"
+                className={inputClasses}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className={inputClasses}
+                style={{ display: forgotPassword ? "none" : "block" }}
               />
-            ))}
+            )}
+
+            {!isRegister && useCode ? (
+              <input
+                type="tel"
+                placeholder="Phone Number"
+                className={inputClasses}
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            ) : null}
+
+            {!isRegister &&
+              (useCode ? (
+                <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 space-y-2 sm:space-y-0">
+                  <input
+                    type="text"
+                    placeholder="Verification Code"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    className={`${inputClasses} flex-1`}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSendCode}
+                    className="btn-outline w-full sm:w-auto text-sm sm:text-base"
+                  >
+                    Send Code
+                  </button>
+                </div>
+              ) : (
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={inputClasses}
+                />
+              ))}
 
             {isRegister && (
               <input
@@ -144,14 +173,15 @@ function LoginForm() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
             )}
-
-            <input
-              type="tel"
-              placeholder="Phone Number"
-              className={inputClasses}
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
+            {isRegister && (
+              <input
+                type="tel"
+                placeholder="Phone Number"
+                className={inputClasses}
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            )}
           </div>
 
           <button type="submit" className="btn-primary w-full">
