@@ -165,3 +165,28 @@ export const googleOAuth = (req, res) => {
   // Placeholder for Google OAuth logic
   res.json({ message: "Google OAuth not implemented" });
 };
+
+export const facebookOAuth = (req, res) => {
+  // Placeholder for Facebook OAuth logic
+  res.json({ message: "Facebook OAuth not implemented" });
+};
+
+export const oauthCallback = (req, res) => {
+  // Placeholder for OAuth callback logic
+  res.json({ message: "OAuth callback not implemented" });
+};  
+
+export const gitHubOAuth = (req, res) => {
+  // Placeholder for GitHub OAuth logic
+  res.json({ message: "GitHub OAuth not implemented" });
+};
+
+export const twitterOAuth = (req, res) => {
+  // Placeholder for Twitter OAuth logic
+  res.json({ message: "Twitter OAuth not implemented" });
+};  
+
+export const linkedinOAuth = (req, res) => {
+  // Placeholder for LinkedIn OAuth logic
+  res.json({ message: "LinkedIn OAuth not implemented" });
+};
