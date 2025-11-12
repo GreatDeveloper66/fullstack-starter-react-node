@@ -22,34 +22,34 @@ app.use(express.json());
 
 app.use("/api/auth/", authRoutes);
 
-// post to create a new user endpoint
-app.post("/api/auth/register", (req, res) => {
-  const { email, password, firstName, lastName,phoneNumber } = req.body;
-  // Here you would typically add code to save the user to your database
-  console.log("Registering user:", { email, password, firstName, lastName, phoneNumber });
-  res.status(201).json({ message: "User registered successfully" });
-});
+// // post to create a new user endpoint
+// app.post("/api/auth/register", (req, res) => {
+//   const { email, password, firstName, lastName,phoneNumber } = req.body;
+//   // Here you would typically add code to save the user to your database
+//   console.log("Registering user:", { email, password, firstName, lastName, phoneNumber });
+//   res.status(201).json({ message: "User registered successfully" });
+// });
 
-app.post("/api/auth/login", (req, res) => {
-  const { email, password } = req.body;
-  res.status(200).json({ message: "User logged in successfully" });
-});
+// app.post("/api/auth/login", (req, res) => {
+//   const { email, password } = req.body;
+//   res.status(200).json({ message: "User logged in successfully" });
+// });
 
-app.post("/api/auth/send-code", (req, res) => {
-  const { email, phone } = req.body;
-  console.log("Sending code to:", { email, phone });
-  res.status(200).json({ message: "Verification code sent" });
-});
+// app.post("/api/auth/send-code", (req, res) => {
+//   const { email, phone } = req.body;
+//   console.log("Sending code to:", { email, phone });
+//   res.status(200).json({ message: "Verification code sent" });
+// });
 
-app.get("/api/auth/profile", (req, res) => {
-  // In a real application, you would fetch user profile from the database
-  res.status(200).json({
-    email: res.email || "Not logged in",
-    firstName: "John",
-    lastName: "Doe",
-    phoneNumber: "123-456-7890"
-  });
-})
+// app.get("/api/auth/profile", (req, res) => {
+//   // In a real application, you would fetch user profile from the database
+//   res.status(200).json({
+//     email: res.email || "Not logged in",
+//     firstName: "John",
+//     lastName: "Doe",
+//     phoneNumber: "123-456-7890"
+//   });
+// })
 
 // Example API endpoint
 app.get("/api/hello", (req, res) => {
