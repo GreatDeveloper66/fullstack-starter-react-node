@@ -1,7 +1,16 @@
 // controllers/authController.js
 import User from "../models/User.js";
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+import bcrypt from "bcryptjs";
+import User from "../models/User.js";
+
+dotenv.config();
+
+//helper function to create JWT token
+const createJwtToken = (userId) => {
+  return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: "1d" });
+};
 
 export const registerUser = async (req, res) => {
   try {
@@ -32,37 +41,144 @@ export const registerUser = async (req, res) => {
 
 export const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
-
-    const user = await User.findOne({ email });
+    const { email, phone, password, code } = req.body;
+    //🧠 1️⃣ Identify user by email or phone
+    const user = await User.findOne({ $or: [{ email }, { phone }] });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Compare passwords
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
-      return res.status(401).json({ message: "Invalid credentials" });
+    // 🧠 2️⃣ If login via password
+    // 🔐 Password login
 
-    // Generate JWT
+    if (password) {
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch)
+        return res.status(400).json({ message: "Invalid credentials" });
+    }
+    // 🧠 3️⃣ If login via verification code
+    // 🔢 Code login
+    else if (code) {
+      if (
+        !user.verificationCode ||
+        user.verificationCode !== code ||
+        user.codeExpiresAt < Date.now()
+      ) {
+        return res.status(400).json({ message: "Invalid or expired code" });
+      }
+      user.verificationCode = null;
+      user.codeExpiresAt = null;
+      await user.save();
+    }
+    // 🧠 4️⃣ If neither provided
+    else {
+      return res.status(400).json({ message: "Missing credentials" });
+    }
+    // 🧠 5️⃣ Create session or token (for example, JWT)
     const token = jwt.sign(
-      { id: user._id, email: user.email },
+      { id: user._id },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: "7d" }
     );
 
     res.json({
       message: "Login successful",
-      token,
       user: {
         id: user._id,
+        email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        email: user.email,
       },
+      token,
     });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
+
+// export const loginUser = async (req, res) => {
+//   try {
+//     const { email, phone, password, code } = req.body;
+
+//     // 🧠 1️⃣ Identify user by email or phone
+//     const user = await User.findOne({
+//       $or: [{ email }, { phone }],
+//     });
+//     if (!user) return res.status(404).json({ message: "User not found" });
+
+//     // 🧠 2️⃣ If login via password
+//     if (password) {
+//       const isMatch = await bcrypt.compare(password, user.password);
+//       if (!isMatch)
+//         return res.status(400).json({ message: "Invalid credentials" });
+//     }
+
+//     // 🧠 3️⃣ If login via verification code
+//     else if (code) {
+//       // Example: you stored temporary codes in user.verificationCode
+//       if (code !== user.verificationCode)
+//         return res.status(400).json({ message: "Invalid or expired code" });
+
+//       // (Optional) clear the code after successful login
+//       user.verificationCode = null;
+//       await user.save();
+//     }
+
+//     // 🧠 4️⃣ If neither provided
+//     else {
+//       return res.status(400).json({ message: "Missing login credentials" });
+//     }
+
+//     // 🧠 5️⃣ Create session or token (for example, JWT)
+//     const token = createJwtToken(user._id); // assume helper function exists
+
+//     res.status(200).json({
+//       message: "Login successful",
+//       user: {
+//         id: user._id,
+//         email: user.email,
+//         firstName: user.firstName,
+//         lastName: user.lastName,
+//       },
+//       token,
+//     });
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
+
+
+// export const loginUser = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     const user = await User.findOne({ email });
+//     if (!user) return res.status(404).json({ message: "User not found" });
+
+//     // Compare passwords
+//     const isMatch = await bcrypt.compare(password, user.password);
+//     if (!isMatch)
+//       return res.status(401).json({ message: "Invalid credentials" });
+
+//     // Generate JWT
+//     const token = jwt.sign(
+//       { id: user._id, email: user.email },
+//       process.env.JWT_SECRET,
+//       { expiresIn: "1d" }
+//     );
+
+//     res.json({
+//       message: "Login successful",
+//       token,
+//       user: {
+//         id: user._id,
+//         firstName: user.firstName,
+//         lastName: user.lastName,
+//         email: user.email,
+//       },
+//     });
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 
 export const logoutUser = (req, res) => {
   // For JWT, logout is handled on the client side by deleting the token.
