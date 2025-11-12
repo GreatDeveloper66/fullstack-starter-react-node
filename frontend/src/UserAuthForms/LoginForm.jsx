@@ -5,138 +5,153 @@ import { Fields } from "./FormFields.jsx";
 
 function LoginForm() {
   const { login } = useAuth();
-  const [isRegister, setIsRegister] = useState(false);
-  const [phone, setPhone] = useState("");
-  const [code, setCode] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [email, setEmail] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [forgotPassword, setForgotPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
-  const [useCode, setUseCode] = useState(false);
   const navigate = useNavigate();
 
-  // --- Effects ---
+  // 🌙 Theme & Preferences
+  const [darkMode, setDarkMode] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+
+  // 🔁 Form Mode: "login" | "register" | "code" | "forgot"
+  const [mode, setMode] = useState("login");
+
+  // 🧠 Form Data
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [code, setCode] = useState("");
+
+  // 🌗 Toggle dark mode
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
   }, [darkMode]);
 
-  // --- Handlers ---
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const payload = useCode ? { email, phone, code } : { email, password };
-
-    login(payload);
-    navigate("/dashboard");
-  };
+  // ✉️ Send verification code mock
   const handleSendCode = () => {
     alert(`Verification code sent to ${email || phone}`);
   };
 
-  // --- State groups ---
+  // 🚀 Submit
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const payload =
+      mode === "code"
+        ? { email, phone, code }
+        : { email, password, firstName, lastName, phone };
+
+    login(payload);
+    navigate("/dashboard");
+  };
+
+  // 🔗 Handlers and state to pass to Fields
   const state = {
-    isRegister,
-    useCode,
-    forgotPassword,
+    mode,
     email,
+    phone,
     password,
     confirmPassword,
-    phone,
-    code,
     firstName,
     lastName,
+    code,
   };
   const handlers = {
     setEmail,
+    setPhone,
     setPassword,
     setConfirmPassword,
-    setPhone,
-    setCode,
     setFirstName,
     setLastName,
+    setCode,
     handleSendCode,
   };
 
+  // 🧩 Mode Titles
+  const titles = {
+    login: "Welcome Back",
+    register: "Create an Account",
+    forgot: "Reset Password",
+    code: "Verify Code",
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
-      <div className="w-full max-w-md bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-8 md:p-10 relative">
-        {/* Dark mode toggle */}
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 px-4 transition-colors duration-300">
+      <div className="w-full max-w-md bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-8 relative">
+        {/* 🌗 Dark Mode Toggle */}
         <button
           onClick={() => setDarkMode(!darkMode)}
-          className="absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-500 dark:text-gray-300 hover:text-blue-500 transition"
+          className="absolute top-3 right-3 text-gray-500 dark:text-gray-300 hover:text-blue-500"
         >
           {darkMode ? "☀️" : "🌙"}
         </button>
 
-        {/* Heading */}
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-center text-gray-800 dark:text-gray-100 mb-6 sm:mb-8">
-          {isRegister ? "Create an Account" : "Welcome Back"}
+        {/* 🏷️ Form Title */}
+        <h2 className="text-2xl font-semibold text-center text-gray-800 dark:text-gray-100 mb-6">
+          {titles[mode]}
         </h2>
 
-        {/* Toggle Login Method */}
-        {!isRegister && (
-          <div className="flex justify-center mb-4 sm:mb-6">
+        {/* 🔄 Toggle login methods (password/code) */}
+        {(mode === "login" || mode === "code") && (
+          <div className="flex justify-center mb-5">
             <button
               type="button"
-              onClick={() => setUseCode(!useCode)}
-              className="btn-secondary w-full sm:w-auto text-sm sm:text-base"
+              onClick={() => setMode(mode === "code" ? "login" : "code")}
+              className="btn-secondary text-sm"
             >
-              {useCode ? "Use Password Instead" : "Use One-Time Code"}
+              {mode === "code" ? "Use Password Instead" : "Use One-Time Code"}
             </button>
           </div>
         )}
 
-        {/* Form */}
-        {/* --- Form --- */}
-        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-          {/* The dynamic fields generator */}
-          <div className="space-y-3 sm:space-y-4">
-            {Fields(state, handlers)}
-          </div>
+        {/* 🧠 Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {Fields(state, handlers)}
 
-          {/* Submit button */}
           <button type="submit" className="btn-primary w-full">
-            {isRegister
+            {mode === "register"
               ? "Register"
-              : forgotPassword
+              : mode === "forgot"
               ? "Send Reset Code"
               : "Login"}
           </button>
         </form>
 
-        {/* Remember Me + Forgot Password */}
-        {!isRegister && (
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-4 sm:mt-5 text-sm sm:text-base space-y-2 sm:space-y-0">
+        {/* 🧩 Remember Me / Forgot Password */}
+        {mode === "login" && (
+          <div className="flex justify-between items-center mt-4 text-sm">
             <label className="flex items-center text-gray-700 dark:text-gray-300">
               <input
                 type="checkbox"
                 checked={rememberMe}
                 onChange={() => setRememberMe(!rememberMe)}
-                className="mr-2 rounded"
+                className="mr-2"
               />
               Remember Me
             </label>
 
             <button
-              className="btn-link text-center sm:text-right"
-              onClick={() => setForgotPassword(!forgotPassword)}
+              className="btn-link"
+              onClick={() => setMode("forgot")}
+              type="button"
             >
-              {forgotPassword ? "Back to Login" : "Forgot Password?"}
+              Forgot Password?
             </button>
           </div>
         )}
 
-        {/* Toggle Register/Login */}
-        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-6 text-center">
-          {isRegister ? "Already have an account?" : "Don’t have an account?"}{" "}
+        {/* 🔁 Toggle between Login / Register */}
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-6 text-center">
+          {mode === "register"
+            ? "Already have an account?"
+            : "Don’t have an account?"}{" "}
           <button
             className="btn-link"
-            onClick={() => setIsRegister(!isRegister)}
+            type="button"
+            onClick={() => setMode(mode === "register" ? "login" : "register")}
           >
-            {isRegister ? "Login" : "Register"}
+            {mode === "register" ? "Login" : "Register"}
           </button>
         </p>
       </div>
@@ -145,10 +160,3 @@ function LoginForm() {
 }
 
 export default LoginForm;
-
-// const inputClasses =
-//   "w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 " +
-//   "focus:ring-2 focus:ring-blue-400 focus:border-blue-400 " +
-//   "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 " +
-//   "placeholder-gray-400 dark:placeholder-gray-500 " +
-//   "transition duration-200 ease-in-out";
