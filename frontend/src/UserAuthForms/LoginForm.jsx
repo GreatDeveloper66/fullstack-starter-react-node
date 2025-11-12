@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Fields } from "./FormFields.jsx";
 
 function LoginForm() {
-  const { login } = useAuth();
+  const { login, register } = useAuth();
   const navigate = useNavigate();
 
   // 🌙 Theme & Preferences
@@ -34,15 +34,33 @@ function LoginForm() {
   };
 
   // 🚀 Submit
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    try {
+      let payload = {};
 
-    const payload =
-      mode === "code"
-        ? { email, phone, code }
-        : { email, password, firstName, lastName, phone };
+      // 🧠 Build payload depending on mode
+      if (mode === "register") {
+        payload = { firstName, lastName, email, password, phone };
+        await register(payload);
+      } else if (mode === "code") {
+        payload = { email, phone, code };
+        await login(payload); // backend will handle one-time code verification
+      } else if (mode === "login") {
+        payload = { email, password };
+        await login(payload);
+      } else if (mode === "forgot") {
+        payload = { email };
+        // optionally call a forgotPassword() function
+        console.log("Password reset request sent", payload);
+      }
 
-    login(payload);
+      // ✅ Navigate only if authentication succeeded
+      if (mode !== "forgot") navigate("/dashboard");
+    } catch (err) {
+      alert(err.response?.data?.message || "Authentication failed");
+    }
+
     navigate("/dashboard");
   };
 
@@ -154,6 +172,46 @@ function LoginForm() {
             {mode === "register" ? "Login" : "Register"}
           </button>
         </p>
+        <div className="flex items-center my-4">
+          <hr className="flex-grow border-gray-300 dark:border-gray-700" />
+          <span className="mx-2 text-gray-500 text-sm">or</span>
+          <hr className="flex-grow border-gray-300 dark:border-gray-700" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            className="btn-outline flex items-center justify-center space-x-2"
+            onClick={() => (window.location.href = "/auth/google")}
+          >
+            {/* <img src="/icons/google.svg" alt="Google" className="w-5 h-5" /> */}
+            {/* <span>Google</span> */}
+            <p>GOOGLE</p>
+          </button>
+          <button
+            className="btn-outline flex items-center justify-center space-x-2"
+            onClick={() => (window.location.href = "/auth/github")}
+          >
+            {/* <img src="/icons/facebook.svg" alt="Facebook" className="w-5 h-5" /> */}
+            {/* <span>Facebook</span> */}
+            <p>FACEBOOK</p>
+          </button>
+          <button
+            className="btn-outline flex items-center justify-center space-x-2"
+            onClick={() => (window.location.href = "/auth/linkedin")}
+          >
+            {/* <img src="/icons/linkedin.svg" alt="LinkedIn" className="w-5 h-5" /> */}
+            {/* <span>LinkedIn</span> */}
+            <p>LINKEDIN</p>
+          </button>
+          <button
+            className="btn-outline flex items-center justify-center space-x-2"
+            onClick={() => (window.location.href = "/auth/twitter")}
+          >
+            {/* <img src="/icons/twitter.svg" alt="Twitter" className="w-5 h-5" /> */}
+            {/* <span>Twitter</span> */}
+            <p>TWITTER</p>
+          </button>
+        </div>
       </div>
     </div>
   );
