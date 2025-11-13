@@ -29,8 +29,18 @@ function LoginForm() {
   }, [darkMode]);
 
   // ✉️ Send verification code mock
-  const handleSendCode = () => {
-    alert(`Verification code sent to ${email || phone}`);
+  const handleSendCode = async () => {
+    try {
+      const res = await fetch("/api/auth/send-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+      const data = await res.json();
+      alert(data.message || "Code sent!");
+    } catch (err) {
+      alert("Error sending code");
+    }
   };
 
   // 🚀 Submit
