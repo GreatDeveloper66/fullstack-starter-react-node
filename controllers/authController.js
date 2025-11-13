@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import User from "../models/User.js";
+import { sendSMS } from "../utils/sendSMS.js";
 
 dotenv.config();
 
@@ -192,10 +193,10 @@ export const getUserProfile = async (req, res) => {
     res.json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
-  } 
+  }
 };
 
-export const updateUserProfile = async (req, res) => {  
+export const updateUserProfile = async (req, res) => {
   try {
     const { firstName, lastName, phone } = req.body;
     const user = await User.findById(req.user.id);
@@ -207,7 +208,7 @@ export const updateUserProfile = async (req, res) => {
     res.json({ message: "Profile updated", user });
   } catch (error) {
     res.status(500).json({ message: error.message });
-  } 
+  }
 };
 
 export const forgotPassword = async (req, res) => {
@@ -217,7 +218,7 @@ export const forgotPassword = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
     // Generate reset token (in a real app, send this via email)
     const resetToken = jwt.sign(
-      { id: user._id }, 
+      { id: user._id },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
@@ -225,7 +226,7 @@ export const forgotPassword = async (req, res) => {
     res.json({ message: "Password reset token generated", resetToken });
   } catch (error) {
     res.status(500).json({ message: error.message });
-  }   
+  }
 };
 
 export const resetPassword = async (req, res) => {
@@ -253,7 +254,7 @@ export const verifyEmail = async (req, res) => {
     res.json({ message: "Email verified successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
-  } 
+  }
 };
 
 export const resendVerificationEmail = async (req, res) => {
@@ -277,6 +278,32 @@ export const resendVerificationEmail = async (req, res) => {
   }
 };
 
+export const sendVerificationCode = async (req, res) => {
+  try {
+    const { phone } = req.body;
+    if (!phone)
+      return res.status(400).json({ message: "Phone number is required" });
+
+    const user = await User.findOne({ phone });
+    if (!user)
+      return res.status(404).json({ message: "User not found" });
+
+    // Generate 6-digit code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    user.verificationCode = code;
+    user.codeExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 min
+    await user.save();
+
+    // Send code via Twilio
+    await sendSMS(phone, `Your login code is ${code}. It expires in 5 minutes.`);
+
+    res.json({ message: "Verification code sent successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const googleOAuth = (req, res) => {
   // Placeholder for Google OAuth logic
   res.json({ message: "Google OAuth not implemented" });
@@ -290,7 +317,7 @@ export const facebookOAuth = (req, res) => {
 export const oauthCallback = (req, res) => {
   // Placeholder for OAuth callback logic
   res.json({ message: "OAuth callback not implemented" });
-};  
+};
 
 export const gitHubOAuth = (req, res) => {
   // Placeholder for GitHub OAuth logic
@@ -300,9 +327,38 @@ export const gitHubOAuth = (req, res) => {
 export const twitterOAuth = (req, res) => {
   // Placeholder for Twitter OAuth logic
   res.json({ message: "Twitter OAuth not implemented" });
-};  
+};
 
 export const linkedinOAuth = (req, res) => {
   // Placeholder for LinkedIn OAuth logic
   res.json({ message: "LinkedIn OAuth not implemented" });
 };
+
+
+
+// export const sendVerificationCode = async (req, res) => {
+//   try {
+//     const { email, phone } = req.body;
+//     if (!email && !phone)
+//       return res.status(400).json({ message: "Email or phone required" });
+
+//     const user = await User.findOne({ $or: [{ email }, { phone }] });
+//     if (!user)
+//       return res.status(404).json({ message: "User not found" });
+
+//     // 🔢 Generate random 6-digit code
+//     const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+//     user.verificationCode = code;
+//     user.codeExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 min
+//     await user.save();
+
+//     // 📩 Send code via your preferred service
+//     // await sendSMS(phone, `Your login code is ${code}`);
+//     // or await sendEmail(email, `Your login code is ${code}`);
+
+//     res.json({ message: "Verification code sent successfully" });
+//   } catch (err) {
+//     res.status(500).json({ message: err.message });
+//   }
+// };
