@@ -10,6 +10,7 @@ import {
   resetPassword,
   verifyEmail,
   resendVerificationEmail,
+  sendVerificationCode,
   googleOAuth,
   facebookOAuth,
   linkedinOAuth,
