@@ -3,14 +3,13 @@ import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
-import User from "../models/User.js";
 import { sendSMS } from "../utils/sendSMS.js";
 
 dotenv.config();
 
 //helper function to create JWT token
-const createJwtToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: "1d" });
+const createJwtToken = (userId, expireTime) => {
+  return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: expireTime });
 };
 
 export const registerUser = async (req, res) => {
@@ -74,11 +73,7 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ message: "Missing credentials" });
     }
     // 🧠 5️⃣ Create session or token (for example, JWT)
-    const token = jwt.sign(
-      { id: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    const token = createJwtToken(user._id, "1d");
 
     res.json({
       message: "Login successful",
@@ -95,106 +90,40 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// export const loginUser = async (req, res) => {
-//   try {
-//     const { email, phone, password, code } = req.body;
-
-//     // 🧠 1️⃣ Identify user by email or phone
-//     const user = await User.findOne({
-//       $or: [{ email }, { phone }],
-//     });
-//     if (!user) return res.status(404).json({ message: "User not found" });
-
-//     // 🧠 2️⃣ If login via password
-//     if (password) {
-//       const isMatch = await bcrypt.compare(password, user.password);
-//       if (!isMatch)
-//         return res.status(400).json({ message: "Invalid credentials" });
-//     }
-
-//     // 🧠 3️⃣ If login via verification code
-//     else if (code) {
-//       // Example: you stored temporary codes in user.verificationCode
-//       if (code !== user.verificationCode)
-//         return res.status(400).json({ message: "Invalid or expired code" });
-
-//       // (Optional) clear the code after successful login
-//       user.verificationCode = null;
-//       await user.save();
-//     }
-
-//     // 🧠 4️⃣ If neither provided
-//     else {
-//       return res.status(400).json({ message: "Missing login credentials" });
-//     }
-
-//     // 🧠 5️⃣ Create session or token (for example, JWT)
-//     const token = createJwtToken(user._id); // assume helper function exists
-
-//     res.status(200).json({
-//       message: "Login successful",
-//       user: {
-//         id: user._id,
-//         email: user.email,
-//         firstName: user.firstName,
-//         lastName: user.lastName,
-//       },
-//       token,
-//     });
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
-
-// export const loginUser = async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-
-//     const user = await User.findOne({ email });
-//     if (!user) return res.status(404).json({ message: "User not found" });
-
-//     // Compare passwords
-//     const isMatch = await bcrypt.compare(password, user.password);
-//     if (!isMatch)
-//       return res.status(401).json({ message: "Invalid credentials" });
-
-//     // Generate JWT
-//     const token = jwt.sign(
-//       { id: user._id, email: user.email },
-//       process.env.JWT_SECRET,
-//       { expiresIn: "1d" }
-//     );
-
-//     res.json({
-//       message: "Login successful",
-//       token,
-//       user: {
-//         id: user._id,
-//         firstName: user.firstName,
-//         lastName: user.lastName,
-//         email: user.email,
-//       },
-//     });
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
-export const logoutUser = (req, res) => {
-  // For JWT, logout is handled on the client side by deleting the token.
-  res.json({ message: "Logout successful" });
-}
+export const logoutUser = async (req, res) => {
+  try {
+    // Invalidate token or session here if using server-side sessions
+    const token = req.headers.authorization?.split(" ")[1];
+    if (token) {
+      return res.status(200).json({ message: "Logout successful: Remove token from client side" });
+    } else{
+      return res.status(400).json({ message: "No token provided" });
+    }
+    
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  } finally {
+    res.json({ message: "Client-side logout completed" });
+  }
+};
 
 export const getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ message: "No token" });
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.id).select("-password");
     if (!user) return res.status(404).json({ message: "User not found" });
-    res.json(user);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+
+    res.json({ user });
+  } catch (err) {
+    res.status(401).json({ message: "Invalid token" });
   }
 };
+
 
 export const updateUserProfile = async (req, res) => {
   try {
@@ -336,29 +265,3 @@ export const linkedinOAuth = (req, res) => {
 
 
 
-// export const sendVerificationCode = async (req, res) => {
-//   try {
-//     const { email, phone } = req.body;
-//     if (!email && !phone)
-//       return res.status(400).json({ message: "Email or phone required" });
-
-//     const user = await User.findOne({ $or: [{ email }, { phone }] });
-//     if (!user)
-//       return res.status(404).json({ message: "User not found" });
-
-//     // 🔢 Generate random 6-digit code
-//     const code = Math.floor(100000 + Math.random() * 900000).toString();
-
-//     user.verificationCode = code;
-//     user.codeExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 min
-//     await user.save();
-
-//     // 📩 Send code via your preferred service
-//     // await sendSMS(phone, `Your login code is ${code}`);
-//     // or await sendEmail(email, `Your login code is ${code}`);
-
-//     res.json({ message: "Verification code sent successfully" });
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
