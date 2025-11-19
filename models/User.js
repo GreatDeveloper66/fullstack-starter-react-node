@@ -8,6 +8,8 @@ const userSchema = new mongoose.Schema(
     email: { type: String, unique: true, sparse: true },
     phone: { type: String, unique: true, sparse: true },
     password: String,
+    googleId: { type: String, unique: true, sparse: true },
+
 
     // 🧠 for verification / OTP login
     verificationCode: String,

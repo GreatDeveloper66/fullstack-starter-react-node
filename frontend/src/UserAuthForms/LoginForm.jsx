@@ -223,7 +223,7 @@ function LoginForm() {
         <div className="grid grid-cols-2 gap-3">
           <button
             className="btn-outline flex items-center justify-center space-x-2"
-            onClick={() => (window.location.href = "/auth/google")}
+            onClick={() => (window.location.href = "api/auth/google")}
           >
             {/* <img src="/icons/google.svg" alt="Google" className="w-5 h-5" /> */}
             {/* <span>Google</span> */}

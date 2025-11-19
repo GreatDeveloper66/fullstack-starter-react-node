@@ -31,13 +31,21 @@ router.post("/send-code", sendVerificationCode);
 router.get("/verify-email", verifyEmail);
 router.post("/resend-verification", resendVerificationEmail);
 router.get("/profile", protect, getUserProfile);
-router.put("/profile", protect, updateUserProfile);
+router.patch("/profile", protect, updateUserProfile);
+//("/profile", protect, updateUserProfile);
 router.post("/logout", protect, logoutUser);
-router.get("/oauth/google", googleOAuth);
-router.get("/oauth/facebook", facebookOAuth);
-router.get("/oauth/linkedin", linkedinOAuth);
-router.get("/oauth/twitter", twitterOAuth);
-router.get("/oauth/github", gitHubOAuth);
-router.get("/oauth/callback", oauthCallback);
+router.get("oauth/google", googleAuthRedirect);
+router.get("oauth/google/callback", googleAuthCallback);
+
+// router.get("/oauth/facebook", facebookOAuth);
+// router.get("/oauth/linkedin", linkedinOAuth);
+// router.get("/oauth/twitter", twitterOAuth);
+// router.get("/oauth/github", gitHubOAuth);
+// router.get("/oauth/callback", oauthCallback);
+
+// router.get("oauth/google", googleAuthRedirect);
+// router.get("/google/callback", googleAuthCallback);
+
+
 
 export default router;
