@@ -41,6 +41,16 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const getUserProfile = async () => {
+    try {
+      const res = await axios.get("/api/auth/profile"); 
+      setUser(res.data.user);
+    } catch (error) {
+      console.error("Fetching profile failed:", error.response?.data || error.message);
+      throw error;
+    } 
+  };
+
   // Logout
   const logout = async () => {
     try {
