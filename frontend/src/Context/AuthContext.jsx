@@ -1,19 +1,26 @@
 import { createContext, useState, useContext } from "react";
+
 import axios from "axios";
 
 const AuthContext = createContext();
-
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
 
   // Register
+  // Register
   const register = async (userData) => {
     try {
       const res = await axios.post("/api/auth/register", userData);
-      setUser(res.data.user);
+      const { user, token } = res.data;
+      setUser(user);
+      localStorage.setItem("token", token); // save token
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       return res.data;
     } catch (error) {
-      console.error("Registration failed:", error.response?.data || error.message);
+      console.error(
+        "Registration failed:",
+        error.response?.data || error.message
+      );
       throw error;
     }
   };
@@ -23,6 +30,10 @@ export function AuthProvider({ children }) {
     try {
       const res = await axios.post("/api/auth/login", credentials);
       setUser(res.data.user);
+      const token = res.data.token;
+      localStorage.setItem("token", token); // save token
+       // Set default header for all requests
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       return res.data;
     } catch (error) {
       console.error("Login failed:", error.response?.data || error.message);
@@ -32,8 +43,18 @@ export function AuthProvider({ children }) {
 
   // Logout
   const logout = async () => {
-    await axios.post("/api/auth/logout");
-    setUser(null);
+    try {
+      localStorage.removeItem("token");
+      sessionStorage.removeItem("token");
+      // navigate("/login");
+      await axios.post("/api/auth/logout");
+      setUser(null);
+    } catch (error) {
+      console.error("Logout failed:", error.response?.data || error.message);
+      throw error;
+    } finally {
+      setUser(null);
+    }
   };
 
   return (
