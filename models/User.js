@@ -20,14 +20,3 @@ const userSchema = new mongoose.Schema(
 userSchema.index({ codeExpiresAt: 1 }, { expireAfterSeconds: 0 });
 
 export default mongoose.model("User", userSchema);
-
-// const userSchema = new mongoose.Schema(
-//   {
-//     firstName: { type: String, required: true },
-//     lastName: { type: String, required: true },
-//     email: { type: String, required: true, unique: true },
-//     password: { type: String, required: true },
-//     phone: { type: String },
-//   },
-//   { timestamps: true }
-// );

@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../Context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Fields } from "./FormFields.jsx";
+import axios from "axios";
 
 function LoginForm() {
   const { login, register } = useAuth();
+  const { setUser } = useAuth();
   const navigate = useNavigate();
 
   // 🌙 Theme & Preferences
@@ -23,10 +25,28 @@ function LoginForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [code, setCode] = useState("");
 
-  // 🌗 Toggle dark mode
   useEffect(() => {
+    // 🌗 Toggle dark mode
     document.documentElement.classList.toggle("dark", darkMode);
-  }, [darkMode]);
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      axios
+        .get("/api/auth/profile")
+        .then((res) => setUser(res.data.user))
+        .catch(() => {
+          // Token invalid or expired → clear it
+          localStorage.removeItem("token");
+          delete axios.defaults.headers.common["Authorization"];
+        })
+        .finally(() => {
+          navigate("/dashboard");
+        });
+    } else {
+      navigate("/login");
+    }
+  });
 
   // ✉️ Send verification code mock
   const handleSendCode = async () => {
@@ -68,10 +88,22 @@ function LoginForm() {
       // ✅ Navigate only if authentication succeeded
       if (mode !== "forgot") navigate("/dashboard");
     } catch (err) {
-      alert(err.response?.data?.message || "Authentication failed");
+      // show a meaningful error message
+      console.error(err);
+      alert(
+        err?.response?.data?.message || err?.message || "Authentication failed"
+      );
     }
+  };
 
-    navigate("/dashboard");
+  const handleRememberMe = (checked) => {
+    setRememberMe(checked);
+    // Persist the user's preference; do not attempt to store a token here (token ownership handled after auth)
+    if (checked) {
+      localStorage.setItem("rememberMe", "true");
+    } else {
+      localStorage.removeItem("rememberMe");
+    }
   };
 
   // 🔗 Handlers and state to pass to Fields
@@ -153,7 +185,7 @@ function LoginForm() {
               <input
                 type="checkbox"
                 checked={rememberMe}
-                onChange={() => setRememberMe(!rememberMe)}
+                onChange={() => handleRememberMe(!rememberMe)}
                 className="mr-2"
               />
               Remember Me
