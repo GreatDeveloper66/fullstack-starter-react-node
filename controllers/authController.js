@@ -9,7 +9,9 @@ dotenv.config();
 
 //helper function to create JWT token
 const createJwtToken = (userId, expireTime) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: expireTime });
+  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+    expiresIn: expireTime,
+  });
 };
 
 export const registerUser = async (req, res) => {
@@ -33,7 +35,19 @@ export const registerUser = async (req, res) => {
       phone,
     });
 
-    res.status(201).json({ message: "User registered successfully", user });
+    //create a token and store it in a cookie or send it in response
+    const token = createJwtToken(user._id, "1d");
+
+    res.status(201).json({
+      message: "User registered successfully",
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+      token,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -95,11 +109,12 @@ export const logoutUser = async (req, res) => {
     // Invalidate token or session here if using server-side sessions
     const token = req.headers.authorization?.split(" ")[1];
     if (token) {
-      return res.status(200).json({ message: "Logout successful: Remove token from client side" });
-    } else{
+      return res
+        .status(200)
+        .json({ message: "Logout successful: Remove token from client side" });
+    } else {
       return res.status(400).json({ message: "No token provided" });
     }
-    
   } catch (err) {
     res.status(500).json({ message: err.message });
   } finally {
@@ -124,7 +139,6 @@ export const getUserProfile = async (req, res) => {
   }
 };
 
-
 export const updateUserProfile = async (req, res) => {
   try {
     const { firstName, lastName, phone } = req.body;
@@ -133,7 +147,7 @@ export const updateUserProfile = async (req, res) => {
     user.firstName = firstName || user.firstName;
     user.lastName = lastName || user.lastName;
     user.phone = phone || user.phone;
-    await user.save();
+    await user.updateOne(user);
     res.json({ message: "Profile updated", user });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -146,11 +160,9 @@ export const forgotPassword = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: "User not found" });
     // Generate reset token (in a real app, send this via email)
-    const resetToken = jwt.sign(
-      { id: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
+    const resetToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
     // Here you would send the resetToken via email to the user
     res.json({ message: "Password reset token generated", resetToken });
   } catch (error) {
@@ -194,15 +206,12 @@ export const resendVerificationEmail = async (req, res) => {
     if (user.isVerified)
       return res.status(400).json({ message: "Email already verified" });
     // Generate verification token (in a real app, send this via email)
-    const verifyToken = jwt.sign(
-      { id: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
+    const verifyToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
     // Here you would send the verifyToken via email to the user
     res.json({ message: "Verification email resent", verifyToken });
-  }
-  catch (error) {
+  } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
@@ -214,8 +223,7 @@ export const sendVerificationCode = async (req, res) => {
       return res.status(400).json({ message: "Phone number is required" });
 
     const user = await User.findOne({ phone });
-    if (!user)
-      return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(404).json({ message: "User not found" });
 
     // Generate 6-digit code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -225,7 +233,10 @@ export const sendVerificationCode = async (req, res) => {
     await user.save();
 
     // Send code via Twilio
-    await sendSMS(phone, `Your login code is ${code}. It expires in 5 minutes.`);
+    await sendSMS(
+      phone,
+      `Your login code is ${code}. It expires in 5 minutes.`
+    );
 
     res.json({ message: "Verification code sent successfully" });
   } catch (error) {
@@ -233,35 +244,102 @@ export const sendVerificationCode = async (req, res) => {
   }
 };
 
-export const googleOAuth = (req, res) => {
-  // Placeholder for Google OAuth logic
-  res.json({ message: "Google OAuth not implemented" });
-};
 
-export const facebookOAuth = (req, res) => {
-  // Placeholder for Facebook OAuth logic
-  res.json({ message: "Facebook OAuth not implemented" });
-};
+export const googleAuthRedirect = (req, res) => {
+  const redirectUrl =
+    "https://accounts.google.com/o/oauth2/v2/auth?" +
+    new URLSearchParams({
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+      response_type: "code",
+      scope: "openid email profile",
+      prompt: "select_account"
+    });
 
-export const oauthCallback = (req, res) => {
-  // Placeholder for OAuth callback logic
-  res.json({ message: "OAuth callback not implemented" });
-};
-
-export const gitHubOAuth = (req, res) => {
-  // Placeholder for GitHub OAuth logic
-  res.json({ message: "GitHub OAuth not implemented" });
-};
-
-export const twitterOAuth = (req, res) => {
-  // Placeholder for Twitter OAuth logic
-  res.json({ message: "Twitter OAuth not implemented" });
-};
-
-export const linkedinOAuth = (req, res) => {
-  // Placeholder for LinkedIn OAuth logic
-  res.json({ message: "LinkedIn OAuth not implemented" });
+  res.redirect(redirectUrl);
 };
 
 
+export const googleAuthCallback = async (req, res) => {
+  try {
+    const { code } = req.query;
 
+    // 1️⃣ Exchange code for token
+    const tokenRes = await axios.post(
+      "https://oauth2.googleapis.com/token",
+      {
+        code,
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+        grant_type: "authorization_code",
+      }
+    );
+
+    const { id_token } = tokenRes.data;
+
+    // 2️⃣ Decode the id_token (Google JWT)
+    const ticket = JSON.parse(
+      Buffer.from(id_token.split(".")[1], "base64").toString()
+    );
+
+    const { email, given_name, family_name, sub } = ticket;
+
+    // 3️⃣ Find or create user
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      user = await User.create({
+        firstName: given_name,
+        lastName: family_name,
+        email,
+        password: null,          // no password since OAuth
+        googleId: sub,           // store their Google user ID
+      });
+    }
+
+    // 4️⃣ Create your own JWT
+    const jwtToken = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    // 5️⃣ Redirect user back to frontend with token
+    res.redirect(`http://localhost:3000/dashboard?token=${jwtToken}`);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Google authentication failed" });
+  }
+};
+
+// export const googleOAuth = (req, res) => {
+//   // Placeholder for Google OAuth logic
+//   res.json({ message: "Google OAuth not implemented" });
+// };
+
+// export const facebookOAuth = (req, res) => {
+//   // Placeholder for Facebook OAuth logic
+//   res.json({ message: "Facebook OAuth not implemented" });
+// };
+
+// export const oauthCallback = (req, res) => {
+//   // Placeholder for OAuth callback logic
+//   res.json({ message: "OAuth callback not implemented" });
+// };
+
+// export const gitHubOAuth = (req, res) => {
+//   // Placeholder for GitHub OAuth logic
+//   res.json({ message: "GitHub OAuth not implemented" });
+// };
+
+// export const twitterOAuth = (req, res) => {
+//   // Placeholder for Twitter OAuth logic
+//   res.json({ message: "Twitter OAuth not implemented" });
+// };
+
+// export const linkedinOAuth = (req, res) => {
+//   // Placeholder for LinkedIn OAuth logic
+//   res.json({ message: "LinkedIn OAuth not implemented" });
+// };
