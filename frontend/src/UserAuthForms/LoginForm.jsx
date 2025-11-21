@@ -5,8 +5,7 @@ import { Fields } from "./FormFields.jsx";
 import axios from "axios";
 
 function LoginForm() {
-  const { login, register } = useAuth();
-  const { setUser } = useAuth();
+  const { login, register, setUser } = useAuth();
   const navigate = useNavigate();
 
   // 🌙 Theme & Preferences
@@ -25,28 +24,47 @@ function LoginForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [code, setCode] = useState("");
 
-  useEffect(() => {
-    // 🌗 Toggle dark mode
-    document.documentElement.classList.toggle("dark", darkMode);
+  // useEffect(() => {
+  //   // 🌗 Toggle dark mode
+  //   document.documentElement.classList.toggle("dark", darkMode);
 
+  //   const token = localStorage.getItem("token");
+  //   if (token) {
+  //     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  //     axios
+  //       .get("/api/auth/profile")
+  //       .then((res) => setUser(res.data.user))
+  //       .catch(() => {
+  //         // Token invalid or expired → clear it
+  //         localStorage.removeItem("token");
+  //         delete axios.defaults.headers.common["Authorization"];
+  //       })
+  //       .finally(() => {
+  //         navigate("/dashboard");
+  //       });
+  //   } else {
+  //     navigate("/login");
+  //   }
+  // },[ darkMode, navigate, setUser ]);
+
+  useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
+    if (!token) return;
+
+    const checkUser = async () => {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      axios
-        .get("/api/auth/profile")
-        .then((res) => setUser(res.data.user))
-        .catch(() => {
-          // Token invalid or expired → clear it
-          localStorage.removeItem("token");
-          delete axios.defaults.headers.common["Authorization"];
-        })
-        .finally(() => {
-          navigate("/dashboard");
-        });
-    } else {
-      navigate("/login");
-    }
-  });
+      try {
+        const res = await axios.get("/api/auth/profile");
+        setUser(res.data.user);
+        navigate("/dashboard");
+      } catch {
+        localStorage.removeItem("token");
+        delete axios.defaults.headers.common["Authorization"];
+      }
+    };
+
+    checkUser();
+  }, []); // <-- remove dependencies
 
   // ✉️ Send verification code mock
   const handleSendCode = async () => {
@@ -86,7 +104,7 @@ function LoginForm() {
       }
 
       // ✅ Navigate only if authentication succeeded
-      if (mode !== "forgot") navigate("/dashboard");
+      if (mode !== "forgot") navigate("/profile");
     } catch (err) {
       // show a meaningful error message
       console.error(err);
