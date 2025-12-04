@@ -23,29 +23,7 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [code, setCode] = useState("");
-
-  // useEffect(() => {
-  //   // 🌗 Toggle dark mode
-  //   document.documentElement.classList.toggle("dark", darkMode);
-
-  //   const token = localStorage.getItem("token");
-  //   if (token) {
-  //     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  //     axios
-  //       .get("/api/auth/profile")
-  //       .then((res) => setUser(res.data.user))
-  //       .catch(() => {
-  //         // Token invalid or expired → clear it
-  //         localStorage.removeItem("token");
-  //         delete axios.defaults.headers.common["Authorization"];
-  //       })
-  //       .finally(() => {
-  //         navigate("/dashboard");
-  //       });
-  //   } else {
-  //     navigate("/login");
-  //   }
-  // },[ darkMode, navigate, setUser ]);
+  const [ sentForgotPassword, setSentForgotPassword ] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -72,7 +50,7 @@ function LoginForm() {
       const res = await fetch("/api/auth/send-code", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone }),
+        body: JSON.stringify({ email }),
       });
       const data = await res.json();
       alert(data.message || "Code sent!");
@@ -100,6 +78,7 @@ function LoginForm() {
       } else if (mode === "forgot") {
         payload = { email };
         // optionally call a forgotPassword() function
+        handleForgotPassword(payload);
         console.log("Password reset request sent", payload);
       }
 
@@ -123,6 +102,21 @@ function LoginForm() {
       localStorage.removeItem("rememberMe");
     }
   };
+
+  const handleForgotPassword = async (payload) => {
+    try {
+      const res = await fetch("/api/auth/forgot-password", {    
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      alert(data.message || "Password reset code sent to your email.");
+      navigate("/forgotPassword");
+    } catch (err) {
+      alert("Error sending password reset link");
+    }
+  }
 
   // 🔗 Handlers and state to pass to Fields
   const state = {
@@ -178,7 +172,7 @@ function LoginForm() {
               onClick={() => setMode(mode === "code" ? "login" : "code")}
               className="btn-secondary text-sm"
             >
-              {mode === "code" ? "Use Password Instead" : "Use One-Time Code"}
+              {mode === "code" ? "Use Password Instead" : "Use One-Time Code to Email"}
             </button>
           </div>
         )}

@@ -3,6 +3,7 @@ import Home from "./Pages/Home";
 import LoginForm from "./UserAuthForms/LoginForm";
 import Dashboard from "./Pages/Dashboard";
 import Profile from "./Pages/Profile";
+import ForgotPassword from "./Pages/ForgotPassword";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import "./App.css";
 
@@ -35,6 +36,15 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+              path="/forgotPassword"
+              element={
+                <ProtectedRoute>
+                  <ForgotPassword />
+                </ProtectedRoute>
+              }
+            />
 
           {/* Add more as needed */}
         </Routes>

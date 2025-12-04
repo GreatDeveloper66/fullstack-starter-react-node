@@ -3,7 +3,7 @@ import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
-import { sendSMS } from "../utils/sendSMS.js";
+import sendNodeMailer from "../utils/sendNodeMailer.js";
 
 dotenv.config();
 
@@ -165,6 +165,20 @@ export const forgotPassword = async (req, res) => {
     });
     // Here you would send the resetToken via email to the user
     res.json({ message: "Password reset token generated", resetToken });
+    const forgotPasswordHTML =
+    `<div>
+          <p>You requested a password reset.</p>
+          <p>Use the following token to reset your password:</p>
+          <p><strong>${resetToken}</strong></p>
+          <p>This token will expire in 1 hour.</p>
+          <p>If you did not request a password reset, please ignore this email.</p>
+      </div>`;
+    sendNodeMailer.sendMail({
+      from: process.env.SMTP_FROM_EMAIL,
+      to: email,
+      subject: "Password Reset",
+      html: `<div><p>Your password reset token is: <strong>${resetToken}</strong></p> <p>This token will expire in 1 hour.</p> <p>If you did not request a password reset, please ignore this email.</p></div>`,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -218,11 +232,10 @@ export const resendVerificationEmail = async (req, res) => {
 
 export const sendVerificationCode = async (req, res) => {
   try {
-    const { phone } = req.body;
-    if (!phone)
-      return res.status(400).json({ message: "Phone number is required" });
+    const { email } = req.email;
+    if (!email) return res.status(400).json({ message: "Email is required" });
 
-    const user = await User.findOne({ phone });
+    const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: "User not found" });
 
     // Generate 6-digit code
@@ -232,18 +245,26 @@ export const sendVerificationCode = async (req, res) => {
     user.codeExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 min
     await user.save();
 
-    // Send code via Twilio
-    await sendSMS(
-      phone,
-      `Your login code is ${code}. It expires in 5 minutes.`
-    );
+    // // Send code via Twilio
+    // await sendSMS(
+    //   phone,
+    //   `Your login code is ${code}. It expires in 5 minutes.`
+    // );
+
+    // Send code via NodeMailer
+    const message = `<p>Your login code is <strong>${code}</strong>. It expires in 5 minutes.</p>`;
+    await sendNodeMailer.sendMail({
+      from: process.env.SMTP_FROM_EMAIL,
+      to: email,
+      subject: "Your Verification Code",
+      html: message,
+    });
 
     res.json({ message: "Verification code sent successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 export const googleAuthRedirect = (req, res) => {
   const redirectUrl =
@@ -253,28 +274,24 @@ export const googleAuthRedirect = (req, res) => {
       redirect_uri: process.env.GOOGLE_REDIRECT_URI,
       response_type: "code",
       scope: "openid email profile",
-      prompt: "select_account"
+      prompt: "select_account",
     });
 
   res.redirect(redirectUrl);
 };
-
 
 export const googleAuthCallback = async (req, res) => {
   try {
     const { code } = req.query;
 
     // 1️⃣ Exchange code for token
-    const tokenRes = await axios.post(
-      "https://oauth2.googleapis.com/token",
-      {
-        code,
-        client_id: process.env.GOOGLE_CLIENT_ID,
-        client_secret: process.env.GOOGLE_CLIENT_SECRET,
-        redirect_uri: process.env.GOOGLE_REDIRECT_URI,
-        grant_type: "authorization_code",
-      }
-    );
+    const tokenRes = await axios.post("https://oauth2.googleapis.com/token", {
+      code,
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      client_secret: process.env.GOOGLE_CLIENT_SECRET,
+      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+      grant_type: "authorization_code",
+    });
 
     const { id_token } = tokenRes.data;
 
@@ -293,21 +310,18 @@ export const googleAuthCallback = async (req, res) => {
         firstName: given_name,
         lastName: family_name,
         email,
-        password: null,          // no password since OAuth
-        googleId: sub,           // store their Google user ID
+        password: null, // no password since OAuth
+        googleId: sub, // store their Google user ID
       });
     }
 
     // 4️⃣ Create your own JWT
-    const jwtToken = jwt.sign(
-      { id: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
 
     // 5️⃣ Redirect user back to frontend with token
     res.redirect(`http://localhost:3000/dashboard?token=${jwtToken}`);
-
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Google authentication failed" });

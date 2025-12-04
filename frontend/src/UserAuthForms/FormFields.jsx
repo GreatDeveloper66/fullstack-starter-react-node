@@ -97,11 +97,11 @@ export const Fields = (state, handlers) => {
     ],
     code: [
       <Input
-        key="phone"
-        type="tel"
-        placeholder="Phone Number"
-        value={phone}
-        setValue={setPhone}
+        key="email"
+        type="email"
+        placeholder="Email"
+        value={email}
+        setValue={setEmail}
       />,
 
       <div key="code-group" className="flex items-center gap-2">
@@ -117,7 +117,7 @@ export const Fields = (state, handlers) => {
           onClick={handleSendCode}
           className="btn-outline px-4 py-2 text-sm whitespace-nowrap"
         >
-          Send Code
+          Send Code to Email
         </button>
       </div>,
     ],
