@@ -59,7 +59,7 @@ root
 │
 └── package.json
 
-Getting Started
+## Getting Started
 
 1. **Create .env**
     PORT=5000
