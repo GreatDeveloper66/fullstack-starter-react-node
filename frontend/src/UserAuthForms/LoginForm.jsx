@@ -194,7 +194,7 @@ const LoginForm = () => {
             ? "Already have an account?"
             : "Don’t have an account?"}{" "}
           <button
-            className="btn-link"
+            className="btn-link bg-green-300 p-1 rounded"
             type="button"
             onClick={() => setMode(mode === "register" ? "login" : "register")}
           >
