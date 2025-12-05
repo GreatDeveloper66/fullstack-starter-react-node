@@ -3,12 +3,15 @@ const GenericInput = ({ type, placeholder, value, setValue, ...props }) => (
     type={type}
     placeholder={placeholder}
     value={value}
+    required
     onChange={(e) => setValue(e.target.value)}
     className="w-full border border-gray-600 dark:border-gray-700 rounded-lg px-3 py-2
                focus:ring-2 focus:ring-blue-400 focus:border-blue-400
                bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100
                 placeholder-gray-400 dark:placeholder-gray-500
-                transition duration-200 ease-in-out"
+                transition duration-200 ease-in-out
+                invalid:border-red-500 invalid:text-red-500
+                valid:border-green-500 valid:text-green-500"
     {...props}
   />
 );
@@ -39,6 +42,8 @@ const EmailInput = ({ value, setValue, ...props }) => (
     placeholder="Email Address"
     value={value}
     setValue={setValue}
+    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+    title="Please enter a valid email address."
     {...props}
   />
 );
@@ -49,6 +54,8 @@ const PasswordInput = ({ value, setValue, ...props }) => (
     placeholder="Password"
     value={value}
     setValue={setValue}
+    pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+    title="Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one number."
     {...props}
   />
 );
@@ -69,6 +76,10 @@ const PhoneNumberInput = ({ value, setValue, ...props }) => (
     placeholder="Phone Number"
     value={value}
     setValue={setValue}
+    pattern="^\+?[1-9]\d{1,14}$"
+    minvalue="7"
+    maxvalue="10"
+    title="Please enter a valid phone number."
     {...props}
   />
 );

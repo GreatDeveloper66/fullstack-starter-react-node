@@ -10,6 +10,44 @@ import {
   RememberMeCheckboxLight
 } from "../Components/FormComponents";
 
+/**
+ * LoginForm Component
+ * 
+ * A React component that provides a unified login and registration form with dark mode support.
+ * Users can toggle between login and registration modes, manage form inputs, and persist
+ * their "remember me" preference to localStorage.
+ * 
+ * @component
+ * @returns {JSX.Element} A form component with authentication UI
+ * 
+ * @description
+ * Features:
+ * - Toggle between login and registration modes
+ * - Dark/Light mode theme switching
+ * - Form validation for email, password, and phone inputs
+ * - "Remember Me" functionality for login mode (persisted to localStorage)
+ * - Responsive design with Tailwind CSS
+ * - Conditional field rendering based on selected mode
+ * 
+ * State Management:
+ * - darkMode: Boolean controlling theme appearance
+ * - mode: String ('login' or 'register') controlling visible form fields
+ * - rememberMe: Boolean controlling checkbox state and localStorage persistence
+ * - firstName, lastName, email, password, confirmPassword, phone: Form input values
+ * 
+ * Handlers:
+ * - handleRememberMe(): Toggles remember me state and updates localStorage
+ * - handleSubmit(e): Validates and logs form submission data based on mode
+ * 
+ * @example
+ * <LoginForm />
+ * 
+ * @note
+ * - Logs form data to console on submission (should be replaced with actual API calls)
+ * - Uses custom input components: FirstNameInput, LastNameInput, EmailInput, etc.
+ * - Requires RememberMeCheckbox and RememberMeCheckboxLight components
+ * - Styling uses Tailwind CSS classes
+ */
 const LoginForm = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [mode, setMode] = useState("register"); // "login" | "register"
@@ -51,9 +89,7 @@ const LoginForm = () => {
   };
 
   const dark = "w-full max-w-md bg-gray-500 dark:bg-gray-500 shadow-2xl rounded-2xl p-8 relative";
-
   const light = "w-full max-w-md bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-8 relative";
-
   const textDark = "text-sm text-gray-600 dark:text-gray-400 mt-6 text-center";
   const textLight = "text-sm text-white dark:text-gray-200 mt-6 text-center";
 
@@ -107,7 +143,7 @@ const LoginForm = () => {
             {mode === "register" ? "Register" : "Login"}
           </button>
           {mode === "login" && (
-            darkMode ? 
+            darkMode ?
               <RememberMeCheckboxLight onClick={handleRememberMe} /> :
             <RememberMeCheckbox
               onClick={handleRememberMe}
