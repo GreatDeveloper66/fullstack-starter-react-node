@@ -1,7 +1,11 @@
 import {
   FirstNameInput,
   LastNameInput,
-} from "../Components/FormComponents.jsx";
+  EmailInput,
+  PasswordInput,
+  ConfirmPasswordInput,
+  PhoneNumberInput,
+} from "../Components/FormComponents";
 
 const LoginForm = () => {
   return (
@@ -9,6 +13,10 @@ const LoginForm = () => {
       <h2>Login Form will be here</h2>
       <FirstNameInput />
       <LastNameInput />
+      <EmailInput />
+      <PasswordInput />
+      <ConfirmPasswordInput />
+      <PhoneNumberInput />
     </div>
   );
 };

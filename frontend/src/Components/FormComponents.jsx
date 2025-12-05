@@ -73,7 +73,7 @@ const PhoneNumberInput = ({ value, setValue, ...props }) => (
   />
 );
 
-const FormComponents = {
+export {
   FirstNameInput,
   LastNameInput,
   EmailInput,
@@ -82,4 +82,4 @@ const FormComponents = {
   PhoneNumberInput,
 };
 
-export default FormComponents;
+
