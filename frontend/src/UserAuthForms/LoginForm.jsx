@@ -42,7 +42,7 @@ const LoginForm = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <h2 className="text-2xl font-semibold text-center text-gray-800 dark:text-gray-100 mb-6">
-            Register Here
+            {mode === "register" ? "Create an Account" : "Welcome Back"}
           </h2>
           {mode === "register" ? (
             <Fragment>
@@ -64,14 +64,18 @@ const LoginForm = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <ConfirmPasswordInput
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-          <PhoneNumberInput
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-          />
+          {mode === "register" ? (
+            <Fragment>
+              <ConfirmPasswordInput
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+              <PhoneNumberInput
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            </Fragment>
+          ) : null}
           <button type="submit" className="btn-primary w-full">
             {mode === "register" ? "Register" : "Login"}
           </button>
