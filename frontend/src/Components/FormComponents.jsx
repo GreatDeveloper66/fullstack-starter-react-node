@@ -73,6 +73,18 @@ const PhoneNumberInput = ({ value, setValue, ...props }) => (
   />
 );
 
+const RememberMeCheckbox = ({ checked, onChange, ...props }) => (
+  <label className="flex items-center text-gray-700 dark:text-gray-300">
+              <input
+                type="checkbox"
+                checked={checked}
+                onChange={onChange}
+                className="mr-2"
+              />
+              Remember Me
+            </label>
+);
+
 export {
   FirstNameInput,
   LastNameInput,
@@ -80,6 +92,7 @@ export {
   PasswordInput,
   ConfirmPasswordInput,
   PhoneNumberInput,
+  RememberMeCheckbox
 };
 
 

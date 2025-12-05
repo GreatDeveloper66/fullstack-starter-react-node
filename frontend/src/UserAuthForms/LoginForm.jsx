@@ -6,7 +6,9 @@ import {
   PasswordInput,
   ConfirmPasswordInput,
   PhoneNumberInput,
+  RememberMeCheckbox,
 } from "../Components/FormComponents";
+import { set } from "mongoose";
 
 const LoginForm = () => {
   const [darkMode, setDarkMode] = useState(false);
@@ -19,18 +21,32 @@ const LoginForm = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [phone, setPhone] = useState("");
 
-  const handleRememberMe = (checked) => {
-    setRememberMe(checked);
+  const handleRememberMe = () => {
+    if(rememberMe) {
+      localStorage.setItem("rememberMe", "false");
+      setRememberMe(false);
+    } else {
+      localStorage.setItem("rememberMe", "true");
+      setRememberMe(true);
+    }
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Form submitted");
+    if (mode === "login") {
+      // Handle login logic
+      console.log("Form submitted");
+      console.log("Email:", email);
+      console.log("Password:", password);
+    } else {
+      // Handle registration logic
+        console.log("Form submitted");
     console.log("FirstName:", firstName);
     console.log("LastName:", lastName);
     console.log("Email:", email);
     console.log("Password:", password);
     console.log("Confirm Password:", confirmPassword);
     console.log("Phone Number:", phone);
+    }
     // Handle form submission logic here
   };
 
@@ -80,20 +96,22 @@ const LoginForm = () => {
               />
             </Fragment>
           ) : null}
-          
           <button type="submit" className="btn-primary w-full">
             {mode === "register" ? "Register" : "Login"}
           </button>
           {mode === "login" && (
-             <label className="flex items-center text-gray-700 dark:text-gray-300">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={() => handleRememberMe(!rememberMe)}
-                className="mr-2"
-              />
-              Remember Me
-            </label>
+            <RememberMeCheckbox
+              onClick={handleRememberMe}
+            />
+            //  <label className="flex items-center text-gray-700 dark:text-gray-300">
+            //   <input
+            //     type="checkbox"
+            //     checked={rememberMe}
+            //     onChange={() => handleRememberMe(!rememberMe)}
+            //     className="mr-2"
+            //   />
+            //   Remember Me
+            // </label>
             )}
         </form>
         {/* 🔁 Toggle between Login / Register */}
