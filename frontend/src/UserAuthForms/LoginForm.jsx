@@ -11,6 +11,7 @@ import {
 const LoginForm = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [mode, setMode] = useState("register"); // "login" | "register"
+  const [rememberMe, setRememberMe] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -18,6 +19,9 @@ const LoginForm = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [phone, setPhone] = useState("");
 
+  const handleRememberMe = (checked) => {
+    setRememberMe(checked);
+  };
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Form submitted");
@@ -76,9 +80,21 @@ const LoginForm = () => {
               />
             </Fragment>
           ) : null}
+          
           <button type="submit" className="btn-primary w-full">
             {mode === "register" ? "Register" : "Login"}
           </button>
+          {mode === "login" && (
+             <label className="flex items-center text-gray-700 dark:text-gray-300">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={() => handleRememberMe(!rememberMe)}
+                className="mr-2"
+              />
+              Remember Me
+            </label>
+            )}
         </form>
         {/* 🔁 Toggle between Login / Register */}
         <p className="text-sm text-gray-600 dark:text-gray-400 mt-6 text-center">
