@@ -22,6 +22,9 @@ const FirstNameInput = ({ value, setValue, ...props }) => (
     placeholder="First Name"
     value={value}
     setValue={setValue}
+    minvalue="2"
+    maxvalue="30"
+    title="First name should be between 2 and 30 characters."
     {...props}
   />
 );
@@ -32,6 +35,9 @@ const LastNameInput = ({ value, setValue, ...props }) => (
     placeholder="Last Name"
     value={value}
     setValue={setValue}
+    minvalue="2"
+    maxvalue="30"
+    title="Last name should be between 2 and 30 characters."
     {...props}
   />
 );
