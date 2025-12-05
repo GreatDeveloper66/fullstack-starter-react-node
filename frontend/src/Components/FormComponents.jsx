@@ -85,6 +85,18 @@ const RememberMeCheckbox = ({ checked, onChange, ...props }) => (
             </label>
 );
 
+const RememberMeCheckboxLight = ({ checked, onChange, ...props }) => (
+  <label className="flex items-center text-white">
+              <input
+                type="checkbox"
+                checked={checked}
+                onChange={onChange}
+                className="mr-2"
+              />
+              Remember Me
+            </label>
+);
+
 export {
   FirstNameInput,
   LastNameInput,
@@ -92,7 +104,8 @@ export {
   PasswordInput,
   ConfirmPasswordInput,
   PhoneNumberInput,
-  RememberMeCheckbox
+  RememberMeCheckbox,
+  RememberMeCheckboxLight
 };
 
 

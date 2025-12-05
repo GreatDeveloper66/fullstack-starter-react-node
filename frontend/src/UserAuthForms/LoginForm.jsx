@@ -7,8 +7,8 @@ import {
   ConfirmPasswordInput,
   PhoneNumberInput,
   RememberMeCheckbox,
+  RememberMeCheckboxLight
 } from "../Components/FormComponents";
-import { set } from "mongoose";
 
 const LoginForm = () => {
   const [darkMode, setDarkMode] = useState(false);
@@ -50,9 +50,16 @@ const LoginForm = () => {
     // Handle form submission logic here
   };
 
+  const dark = "w-full max-w-md bg-gray-500 dark:bg-gray-500 shadow-2xl rounded-2xl p-8 relative";
+
+  const light = "w-full max-w-md bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-8 relative";
+
+  const textDark = "text-sm text-gray-600 dark:text-gray-400 mt-6 text-center";
+  const textLight = "text-sm text-white dark:text-gray-200 mt-6 text-center";
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 px-4 transition-colors duration-300">
-      <div className="w-full max-w-md bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-8 relative">
+      <div className={darkMode ? dark : light}>
         <button
           onClick={() => setDarkMode(!darkMode)}
           className="absolute top-3 right-3 text-gray-500 dark:text-gray-300 hover:text-blue-500"
@@ -100,22 +107,15 @@ const LoginForm = () => {
             {mode === "register" ? "Register" : "Login"}
           </button>
           {mode === "login" && (
+            darkMode ? 
+              <RememberMeCheckboxLight onClick={handleRememberMe} /> :
             <RememberMeCheckbox
               onClick={handleRememberMe}
             />
-            //  <label className="flex items-center text-gray-700 dark:text-gray-300">
-            //   <input
-            //     type="checkbox"
-            //     checked={rememberMe}
-            //     onChange={() => handleRememberMe(!rememberMe)}
-            //     className="mr-2"
-            //   />
-            //   Remember Me
-            // </label>
             )}
         </form>
         {/* 🔁 Toggle between Login / Register */}
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-6 text-center">
+        <p className={darkMode ? textLight : textDark}>
           {mode === "register"
             ? "Already have an account?"
             : "Don’t have an account?"}{" "}
