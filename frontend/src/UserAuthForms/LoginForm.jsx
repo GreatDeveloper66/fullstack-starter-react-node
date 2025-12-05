@@ -122,7 +122,7 @@ const LoginForm = () => {
           "Authentication failed"
       );
     }
-    // Handle form submission logic here
+    
   };
 
   const dark =
