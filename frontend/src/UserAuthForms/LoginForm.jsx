@@ -10,6 +10,7 @@ import {
 
 const LoginForm = () => {
   const [darkMode, setDarkMode] = useState(false);
+  const [mode, setMode] = useState("register"); // "login" | "register"
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -65,6 +66,11 @@ const LoginForm = () => {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />
+          <button type="submit" className="btn-primary w-full">
+            {mode === "register"
+              ? "Register"
+              : "Login"}
+          </button>
         </form>
       </div>
     </div>
