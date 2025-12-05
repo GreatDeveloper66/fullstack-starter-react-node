@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import {
   FirstNameInput,
   LastNameInput,
@@ -41,15 +41,21 @@ const LoginForm = () => {
         </button>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <h2 className="text-2xl font-semibold text-center text-gray-800 dark:text-gray-100 mb-6">Register Here</h2>
-          <FirstNameInput
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-          />
-          <LastNameInput
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-          />
+          <h2 className="text-2xl font-semibold text-center text-gray-800 dark:text-gray-100 mb-6">
+            Register Here
+          </h2>
+          {mode === "register" ? (
+            <Fragment>
+              <FirstNameInput
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+              <LastNameInput
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
+            </Fragment>
+          ) : null}
           <EmailInput
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -67,11 +73,22 @@ const LoginForm = () => {
             onChange={(e) => setPhone(e.target.value)}
           />
           <button type="submit" className="btn-primary w-full">
-            {mode === "register"
-              ? "Register"
-              : "Login"}
+            {mode === "register" ? "Register" : "Login"}
           </button>
         </form>
+        {/* 🔁 Toggle between Login / Register */}
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-6 text-center">
+          {mode === "register"
+            ? "Already have an account?"
+            : "Don’t have an account?"}{" "}
+          <button
+            className="btn-link"
+            type="button"
+            onClick={() => setMode(mode === "register" ? "login" : "register")}
+          >
+            {mode === "register" ? "Login" : "Register"}
+          </button>
+        </p>
       </div>
     </div>
   );
