@@ -5,8 +5,12 @@
   "type": "module",
   "proxy": "http://localhost:5000",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npm install && cd frontend && npm install && npm run build && cd..",
+    "test": "jest -c test.config.mjs",
+    "test:backend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config=jest.config.backend.mjs",
+    "test:frontend": "cd frontend && npm test",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "npm install",
     "heroku-postbuild": "npm run build",
     "dev": "concurrently \"nodemon server.js\" \"cd frontend && npm start\"",
     "start": "node server.js"
@@ -27,13 +31,11 @@
     "mongodb": "^6.20.0",
     "mongoose": "^8.19.1",
     "nodemailer": "^7.0.10",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^7.9.1",
     "twilio": "^5.10.5"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
+    "baseline-browser-mapping": "^2.9.6",
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
     "jest": "^30.2.0",

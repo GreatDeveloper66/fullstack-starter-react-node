@@ -6,13 +6,7 @@ import {
   logoutUser,
   getUserProfile,
   updateUserProfile,
-  forgotPassword,
-  resetPassword,
-  verifyEmail,
-  resendVerificationEmail,
-  sendVerificationCode,
-  googleAuthRedirect,
-  googleAuthCallback
+  sendLoginCode
 } from "../controllers/authController.js";
 import protect from "../middleware/authMiddleware.js";
 
@@ -21,16 +15,17 @@ const router = express.Router();
 // Routes for authentication
 router.post("/register", registerUser);
 router.post("/login", loginUser);
-router.post("/forgot-password", forgotPassword);
-router.post("/reset-password", resetPassword)
-router.post("/send-code", sendVerificationCode);
-router.get("/verify-email", verifyEmail);
-router.post("/resend-verification", resendVerificationEmail);
+// router.post("/forgot-password", forgotPassword);
+// router.post("/reset-password", resetPassword)
+//router.post("/send-code", sendVerificationCode);
+router.post("/send-login-code", sendLoginCode);
+// router.get("/verify-email", verifyEmail);
+// router.post("/resend-verification", resendVerificationEmail);
 router.get("/profile", protect, getUserProfile);
 router.patch("/profile", protect, updateUserProfile);
 router.post("/logout", protect, logoutUser);
-router.get("oauth/google", googleAuthRedirect);
-router.get("oauth/google/callback", googleAuthCallback);
+// router.get("oauth/google", googleAuthRedirect);
+// router.get("oauth/google/callback", googleAuthCallback);
 
 
 

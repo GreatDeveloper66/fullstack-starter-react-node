@@ -3,8 +3,31 @@ import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
+import nodeMailer from "nodemailer";
 
 dotenv.config();
+
+//send email with nodemailer helper function
+const sendEmail = async (to, subject, text) => {
+  const transporter = nodeMailer.createTransport({
+    host: process.env.SMPTP_HOST,
+    port: process.env.SMPTP_PORT,
+    secure: false,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+
+  await transporter.sendMail({
+    from: `"No Reply" <${process.env.SMTP_USER}>`,
+    to,
+    subject,
+    text,
+  });
+};
+
+
 
 //helper function to create JWT token
 const createJwtToken = (userId, expireTime) => {
@@ -117,6 +140,70 @@ export const loginUser = async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+export const sendLoginCode = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    } else {
+      // Generate a verification code
+      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const CodeExpiresAt = Date.now() + 15*60*1000; // Code valid for 15 minutes
+
+      // Save the code and its expiration time to the user document
+      user.verificationCode = verificationCode;
+      user.codeExpiresAt = CodeExpiresAt;
+      await user.save();
+
+      // Send the code via email (implementation of sendEmail not shown here)
+      // await sendEmail(user.email, "Your Verification Code", `Your code is: ${verificationCode}`);
+      sendEmail(user.email, "Your Verification Code", `Your code is: ${verificationCode}`);
+      res.json({ message: "Verification code sent to email" });
+    }
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  } finally {
+    res.json({ message: "Login with code process completed" });
+  }
+}
+
+export const loginWithCode = async (req, res) => {
+  try {
+    const { email, code } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    } else {
+      // Verify the code
+      if (code !== user.verificationCode || Date.now() > user.codeExpiresAt) {
+        return res.status(400).json({ message: "Invalid or expired code" });
+      } else {
+        // Clear the code and expiration time
+        user.verificationCode = null;
+        user.codeExpiresAt = null;
+        await user.save();
+        // Create a JWT token
+        const token = createJwtToken(user._id, "1d");
+        res.json({
+          message: "Login successful",
+          user: {
+            id: user._id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+          },
+          token,
+        });
+      }
+    }
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  } finally {
+    res.json({ message: "Login with code process completed" });
   }
 };
 

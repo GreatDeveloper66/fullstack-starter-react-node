@@ -1,10 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./Pages/Home";
-import LoginForm from "./UserAuthForms/LoginForm";
-import Dashboard from "./Pages/Dashboard";
-import Profile from "./Pages/Profile";
-import ForgotPassword from "./Pages/ForgotPassword";
-import ProtectedRoute from "./Components/ProtectedRoute";
+import Home from "./Pages/Home.jsx";
+import LoginForm from "./UserAuthForms/LoginForm.jsx";
+import Dashboard from "./Pages/Dashboard.jsx";
+import Profile from "./Pages/Profile.jsx";
+import ForgotPassword from "./Pages/ForgotPassword.jsx";
+import ProtectedRoute from "./Components/ProtectedRoute.jsx";
 import "./App.css";
 
 /**

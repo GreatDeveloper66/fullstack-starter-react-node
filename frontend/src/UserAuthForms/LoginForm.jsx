@@ -11,7 +11,7 @@ import {
   PhoneNumberInput,
   RememberMeCheckbox,
   RememberMeCheckboxLight,
-} from "../Components/FormComponents";
+} from "../Components/FormComponents.jsx";
 
 /**
  * LoginForm Component
@@ -122,7 +122,6 @@ const LoginForm = () => {
           "Authentication failed"
       );
     }
-    
   };
 
   const dark =
