@@ -68,8 +68,6 @@ export function AuthProvider({ children }) {
   };
 
   //Remember Me Functionality can be handled in the login component by storing token in localStorage or sessionStorage based on user preference.
-  const 
-
   return (
     <AuthContext.Provider value={{ user, register, login, logout, getUserProfile, setUser }}>
       {children}
